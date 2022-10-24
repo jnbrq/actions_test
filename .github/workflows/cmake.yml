@@ -16,6 +16,10 @@ jobs:
         os: [ ubuntu-22.04 ]
         compiler: [ 'g++-12', 'g++-11', 'clang-14', 'clang-13' ]
         build_type: [ 'Debug', 'Release' ]
+    env:
+      MATRIX_OS: ${{ matrix.os }}
+      MATRIX_COMPILER: ${{ matrix.compiler }}
+      MATRIX_BUILD_TYPE: ${{ matrix.build_type }}
     steps:
     - uses: actions/checkout@v3
     - name: Install software
@@ -27,28 +31,13 @@ jobs:
     - name: Configure CMake
       shell: bash
       run: |
-        if [[ ${{ matrix.compiler }} =~ clang-([0-9]+) ]]
-        then
-          version=${BASH_REMATCH[1]}
-          export CC=clang-$version
-          export CXX=clang++-$version
-        elif [[ ${{ matrix.compiler }} =~ g\+\+-([0-9]+) ]]
-        then
-          version=${BASH_REMATCH[1]}
-          export CC=gcc-$version
-          export CXX=g++-$version
-        else
-          echo "error: not valid compiler parameter."
-          exit 1
-        fi
-        echo "CXX=$CXX"
-        echo "CC=$CC"
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        source ${{github.workspace}}/actions_config.sh
+        cmake -B ${{github.workspace}}/build $CMAKE_ARGS
 
     - name: Build
-      run: |
-        cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
+      working-directory: ${{github.workspace}}/build
+      run: ninja
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{ matrix.build_type }}
+      run: ctest
