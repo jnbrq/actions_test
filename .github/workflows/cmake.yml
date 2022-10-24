@@ -29,24 +29,26 @@ jobs:
       run: |
         if [[ ${{ matrix.compiler }} =~ clang-([0-9]+) ]]
         then
-          export CC=clang-${BASH_REMATCH[1]}
-          export CXX=clang++-${BASH_REMATCH[1]}
-        elif [[ ${{ matrix.compiler }} =~ g++-([0-9]+) ]]
+          version=${BASH_REMATCH[1]}
+          export CC=clang-$version
+          export CXX=clang++-$version
+        elif [[ ${{ matrix.compiler }} =~ g\+\+-([0-9]+) ]]
         then
-          export CC=gcc-${BASH_REMATCH[1]}
-          export CXX=g++-${BASH_REMATCH[1]}
+          version=${BASH_REMATCH[1]}
+          export CC=gcc-$version
+          export CXX=g++-$version
         else
           echo "error: not valid compiler parameter."
           exit 1
         fi
         echo "CXX=$CXX"
         echo "CC=$CC"
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build
       run: |
-        cmake --build ${{github.workspace}}/build --config ${{ env.BUILD_TYPE }}
+        cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: ctest -C ${{ matrix.build_type }}
