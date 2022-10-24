@@ -25,10 +25,11 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install software
-      run: sudo apt install ${{ matrix.compiler }}
-      run: sudo apt install libboost-all-dev
-      run: sudo apt install cmake
-      run: sudo apt install ninja
+      run: |
+        sudo apt install ${{ matrix.compiler }}
+        sudo apt install libboost-all-dev
+        sudo apt install cmake
+        sudo apt install ninja
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
