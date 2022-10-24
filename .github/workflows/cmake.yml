@@ -32,7 +32,7 @@ jobs:
       shell: bash
       run: |
         source ${{github.workspace}}/actions_config.sh
-        cmake -B ${{github.workspace}}/build $CMAKE_ARGS
+        cmake -B ${{github.workspace}}/build $CMAKE_ARGS -G Ninja
 
     - name: Build
       working-directory: ${{github.workspace}}/build
